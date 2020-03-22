@@ -1,0 +1,35 @@
+server:
+  port: 9001
+#eureka
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:7001/eureka/ #往该地址注册自己的信息到注册中心
+    register-with-eureka: false #不注册到eureka
+  instance:
+    instance-id: order-service-9001 # 自定义服务名称信息
+    prefer-ip-address: true
+
+info:
+  app.name: order-service-9001
+  company.name: www.bdqn.cn
+  build.artifactId: $project.artifactId$
+  build.version: $project.version$
+
+spring:
+  application:
+      name: order-service-9001  # 指明微服务应用名，这个很重要，这在以后的服务与服务之间相互调用一般都是根据这个name。
+  thymeleaf:
+    cache: false
+
+#ribbon连接超时
+ribbon:
+  ConnectTimeout : 10
+
+feign:
+  hystrix:
+    enabled: true
+
+
+
+
