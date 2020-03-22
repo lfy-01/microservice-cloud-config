@@ -1,0 +1,117 @@
+server:
+  port: 8001
+#eureka
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:7001/eureka/ #往该地址注册自己的信息到注册中心
+      register-with-eureka: true
+  instance:
+    instance-id: product-service-8001 # 自定义服务名称信息
+    prefer-ip-address: true
+
+info:
+  app.name: product-service-8001
+  company.name: www.bdqn.cn
+  build.artifactId: $project.artifactId$
+  build.version: $project.version$
+
+spring:
+  application:
+    name: product-service  # 指明微服务应用名，这个很重要，这在以后的服务与服务之间相互调用一般都是根据这个name。
+  thymeleaf:
+    cache: false
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url:  jdbc:mysql://localhost:3306/mysql?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+      username: root
+      password: admin
+      #初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      #连接等待超时时间
+      max-wait: 30000
+      #配置检测可以关闭的空闲连接间隔时间
+      time-between-eviction-runs-millis: 60000
+      #配置连接在池中的最小生存时间
+      min-evictable-idle-time-millis: 300000
+      #用来检测连接是否有效的sql，要求是一个查询语句，常用select 'x'。如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会起作用。
+      validation-query: select 'x'
+      #申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      test-while-idle: true
+      #归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      test-on-borrow: false
+      #建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+      test-on-return: false
+      #是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+      pool-prepared-statements: false
+      max-open-prepared-statements: 20
+      #要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100
+      max-pool-prepared-statement-per-connection-size: 20
+      #Spring监控AOP切入点，如x.y.z.service.*,配置多个英文逗号分隔
+      aop-patterns: com.xj.demo.servie.*
+      #合并多个DruidDataSource的监控数据
+      use-global-data-source-stat: true
+      #配置监控统计拦截的filters
+      filter:
+        #监控统计用的filter:stat
+        stat:
+          enabled: true
+          merge-sql: true
+          log-slow-sql: true
+          #配置SQL慢的标准，执行时间超过slowSqlMillis的就是慢
+          slow-sql-millis: 5000
+        #防御sql注入的filter:wall
+        wall:
+          enabled: true
+          config:
+            #是否允许执行DELETE语句
+            delete-allow: true
+            #是否允许修改表
+            drop-table-allow: true
+        slf4j:
+          enabled: true
+          statement-executable-sql-log-enable: true
+          #所有Statement相关的日志
+          statement-log-enabled: false
+  profiles:
+    active: dev
+  quartz:
+    #相关属性配置
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: clusteredScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            #isClustered: false
+            #clusterCheckinInterval: 10000
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+    #数据库方式
+    job-store-type: jdbc
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    cn.bdqn.mapper: debug  # 解决mybatis sql不打印问题
+mybatis:
+  # mybatis主配置文件
+  # config-location: classpath:mybatis/mybatis-config.xml
+  # 映射文件所在路径
+  mapper-locations: classpath:mybatis/mapper/*Mapper.xml
+  # pojo类所在包路径
+  type-aliases-package: cn.bdqn.entity
+
+
+
